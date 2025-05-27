@@ -1,174 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lista de Almacenes</title>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Estudiantes</title>
 
-    <!-- Estilos de DataTables -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"
-    />
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="css/listar.css" />
+</head>
+<body>
+  <div id="contenido">
+    <h2>Lista de Estudiantes</h2>
+    <button id="btnAgregar" onclick="openmodal()">➕ Agregar</button>
 
-    <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="css/listar.css" />
-  </head>
-  <body>
-    <div id="contenido">
-      <h2>Lista de Almacenes</h2>
+    <table id="miTabla" class="display">
+      <thead>
+        <tr>
+          <th>DNI</th>
+          <th>Apellido Paterno</th>
+          <th>Apellido Materno</th>
+          <th>Nombre</th>
+          <th>Fecha Nacimiento</th>
+          <th>Login</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-      <button id="btnAgregar" onclick="openmodal()">➕ Agregar</button>
+    <!-- Modal -->
+    <dialog id="mainModal">
+      <form method="dialog" id="formularioModal">
+        <h3>Formulario de Estudiante</h3>
 
-      <table id="miTabla" class="display">
-        <thead>
-          <tr>
-            <th>codalm</th>
-            <th>desalm</th>
-            <th>Estado</th>
-            <th>siscod</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-      </table>
+        <input type="hidden" id="idcodigo" />
 
-      <!-- Modal -->
-      <dialog id="mainModal">
-          <form method="dialog" id="formularioModal">
-          <h3>Formulario de Almacén</h3>
+        <label for="ndni">DNI:</label>
+        <input type="text" id="indni" required />
 
-          <label for="desalm">Descripción:</label>
-          <input type="text" id="idesalm" name="desalm" required />
+        <label for="appa">Apellido Paterno:</label>
+        <input type="text" id="iappa" required />
 
-          <label for="estado">Estado:</label>
-          <select id="iestado" name="estado">
-            <option value="S">S</option>
-            <option value="N">N</option>
-          </select>
+        <label for="apma">Apellido Materno:</label>
+        <input type="text" id="iapma" required />
 
-          <label for="siscod">Código del Sistema:</label>
-          <input type="text" id="isiscod" name="siscod" required />
+        <label for="nombre">Nombres:</label>
+        <input type="text" id="inombre" required />
 
-          <div class="modal-buttons">
-            <button type="submit">Guardar</button>
-            <button type="button" onclick="closemodal()">Cancelar</button>
-          </div>
-        </form>
-      </dialog>
-    </div>
+        <label for="fecha">Fecha Nacimiento:</label>
+        <input type="date" id="ifecha" required />
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script>
-        
-      
+        <label for="login">Login:</label>
+        <input type="text" id="ilogin" required />
 
-      
-  const modal = document.getElementById("mainModal");
-  const form = document.getElementById("formularioModal");
+        <label for="pass">Password:</label>
+        <input type="password" id="ipass" required />
 
-  let modoEdicion = false; // false = nuevo, true = editar
-  let codEditar = null; // almacena el codalm del registro a editar
+        <div class="modal-buttons">
+          <button type="submit">Guardar</button>
+          <button type="button" onclick="closemodal()">Cancelar</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
 
-  function openmodal() {
-    modoEdicion = false;
-    limpiarFormulario();
-    modal.showModal();
-  }
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    const modal = document.getElementById("mainModal");
+    const form = document.getElementById("formularioModal");
 
-  function openmodaledit(almacen) {
-    
-    document.getElementById("idesalm").value = almacen.desalm;
-    document.getElementById("iestado").value = almacen.estado;
-    document.getElementById("isiscod").value = almacen.siscod;
+    let modoEdicion = false;
+    let codEditar = null;
 
-    modoEdicion = true;
-    codEditar = almacen.codalm;
-    modal.showModal();
-  }
-
-  function closemodal() {
-    modal.close();
-  }
-  function limpiarFormulario() {
-    
-    document.getElementById("idesalm").value = "";
-    document.getElementById("iestado").value = "S";
-    document.getElementById("isiscod").value = "";
-  }
-
- 
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    const desalm = document.getElementById("idesalm").value;
-    const estado = document.getElementById("iestado").value;
-    const siscod = document.getElementById("isiscod").value;
-
-    const metodo = modoEdicion ? "PUT" : "POST";
-    const datos = { codEditar, desalm, estado, siscod };
-
-    await fetch("SvGestion", {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(datos),
-    });
-
-    modal.close();
-    listar();
-  });
-
-  async function eliminar(codalm) {
-    if (!confirm("¿Estás seguro de eliminar este almacén?")) return;
-
-    await fetch(`SvGestion?codalm=${codalm}`, {
-      method: "DELETE",
-    });
-
-    listar();
-  }
-
-  async function listar() {
-    let respuesta = await fetch("SvGestion");
-    let datos = await respuesta.json();
-
-    const tablaBody = document.querySelector("#miTabla tbody");
-    tablaBody.innerHTML = "";
-
-    datos.forEach((p) => {
-      const fila = document.createElement("tr");
-      fila.innerHTML = `
-          <td id="codalm">${p.codalm}</td>
-          <td id="desalm">${p.desalm}</td>
-          <td id="estado">${p.estado}</td>
-          <td id="siscod">${p.siscod}</td>
-          <td>
-            <button onclick='openmodaledit(${JSON.stringify(p)})'>✏️ Editar</button>
-            <button onclick='eliminar(${p.codalm})'>🗑️ Eliminar</button>
-          </td>`;
-      tablaBody.appendChild(fila);
-    });
-
-    // Re-inicializar DataTable
-    if ($.fn.DataTable.isDataTable("#miTabla")) {
-      $("#miTabla").DataTable().destroy();
+    function openmodal() {
+      modoEdicion = false;
+      limpiarFormulario();
+      modal.showModal();
     }
-    $("#miTabla").DataTable();
-  }
 
-  $(document).ready(function () {
-    listar();
-  });
+    function openmodaledit(est) {
+      document.getElementById("idcodigo").value = est.codiEstdWeb;
+      document.getElementById("indni").value = est.ndniEstdWeb;
+      document.getElementById("iappa").value = est.appaEstdWeb;
+      document.getElementById("iapma").value = est.apmaEstdWeb;
+      document.getElementById("inombre").value = est.nombEstdWeb;
+      document.getElementById("ifecha").value = est.fechNaciEstdWeb;
+      document.getElementById("ilogin").value = est.logiEstd;
+      document.getElementById("ipass").value = est.passEstd;
 
+      codEditar = est.codiEstdWeb;
+      modoEdicion = true;
+      modal.showModal();
+    }
 
-    </script>
-    
-  </body>
+    function closemodal() {
+      modal.close();
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("idcodigo").value = "";
+      document.getElementById("indni").value = "";
+      document.getElementById("iappa").value = "";
+      document.getElementById("iapma").value = "";
+      document.getElementById("inombre").value = "";
+      document.getElementById("ifecha").value = "";
+      document.getElementById("ilogin").value = "";
+      document.getElementById("ipass").value = "";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const datos = {
+        codiEstdWeb: codEditar,
+        ndniEstdWeb: document.getElementById("indni").value,
+        appaEstdWeb: document.getElementById("iappa").value,
+        apmaEstdWeb: document.getElementById("iapma").value,
+        nombEstdWeb: document.getElementById("inombre").value,
+        fechNaciEstdWeb: document.getElementById("ifecha").value,
+        logiEstd: document.getElementById("ilogin").value,
+        passEstd: document.getElementById("ipass").value,
+      };
+
+      const metodo = modoEdicion ? "PUT" : "POST";
+
+      await fetch("SvEstudiante", {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(datos),
+      });
+
+      modal.close();
+      listar();
+    });
+
+    async function eliminar(id) {
+      if (!confirm("¿Estás seguro de eliminar este estudiante?")) return;
+
+      await fetch(`SvEstudiante?codiEstdWeb=${id}`, {
+        method: "DELETE",
+      });
+
+      listar();
+    }
+
+    async function listar() {
+      const respuesta = await fetch("SvEstudiante");
+      const datos = await respuesta.json();
+
+      const tablaBody = document.querySelector("#miTabla tbody");
+      tablaBody.innerHTML = "";
+
+      datos.forEach((e) => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td>${e.ndniEstdWeb}</td>
+          <td>${e.appaEstdWeb}</td>
+          <td>${e.apmaEstdWeb}</td>
+          <td>${e.nombEstdWeb}</td>
+          <td>${e.fechNaciEstdWeb}</td>
+          <td>${e.logiEstd}</td>
+          <td>
+            <button onclick='openmodaledit(${JSON.stringify(e)})'>✏️ Editar</button>
+            <button onclick='eliminar(${e.codiEstdWeb})'>🗑️ Eliminar</button>
+          </td>`;
+        tablaBody.appendChild(fila);
+      });
+
+      if ($.fn.DataTable.isDataTable("#miTabla")) {
+        $("#miTabla").DataTable().destroy();
+      }
+      $("#miTabla").DataTable();
+    }
+
+    $(document).ready(function () {
+      listar();
+    });
+  </script>
+</body>
 </html>
