@@ -71,7 +71,7 @@
     .addEventListener("submit", async function (e) {
       e.preventDefault(); // Previene el envío del formulario
 
-      const codigo = document.getElementById("codigo").value.trim();
+      const codigo = document.getElementById("dni").value.trim();
 
       try {
         // Aquí deberías enviar el código como parámetro o POST
@@ -79,7 +79,7 @@
         const datos = await res.json();
         
         // Suponiendo que recibes algo como: { codigo: "ABC123", nombre: "Juan Pérez" }
-        if ( datos.cod == codigo) {
+        if ( datos.cod = codigo) {
           document.getElementById("nombrePersona").textContent = datos.usenam;
           document.getElementById("resultado").classList.remove("hidden");
         } else {
@@ -107,7 +107,7 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          codigo: document.getElementById("codigo").value.trim(),
+          codigo: document.getElementById("dni").value.trim(),
           nuevaContrasena: nuevaPass
         })
       });
