@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "SvEstudiante", urlPatterns = {"/SvEstudiante"})
 public class SvEstudiante extends HttpServlet {
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("tuUnidadDePersistencia");
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_Preg01_war_1.0-SNAPSHOTPU");
     EstudiantewebJpaController estudianteController = new EstudiantewebJpaController(emf);
     Gson gson = new Gson();
 
