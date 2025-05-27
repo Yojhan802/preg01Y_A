@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Almacenes</title>
+
+    <!-- Estilos de DataTables -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"
+    />
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/listar.css" />
+  </head>
+  <body>
+    <div id="contenido">
+      <h2>Lista de Almacenes</h2>
+
+      <button id="btnAgregar" onclick="openmodal()">➕ Agregar</button>
+
+      <table id="miTabla" class="display">
+        <thead>
+          <tr>
+            <th>codalm</th>
+            <th>desalm</th>
+            <th>Estado</th>
+            <th>siscod</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+
+      <!-- Modal -->
+      <dialog id="mainModal">
+          <form method="dialog" id="formularioModal">
+          <h3>Formulario de Almacén</h3>
+
+          <label for="desalm">Descripción:</label>
+          <input type="text" id="idesalm" name="desalm" required />
+
+          <label for="estado">Estado:</label>
+          <select id="iestado" name="estado">
+            <option value="S">S</option>
+            <option value="N">N</option>
+          </select>
+
+          <label for="siscod">Código del Sistema:</label>
+          <input type="text" id="isiscod" name="siscod" required />
+
+          <div class="modal-buttons">
+            <button type="submit">Guardar</button>
+            <button type="button" onclick="closemodal()">Cancelar</button>
+          </div>
+        </form>
+      </dialog>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        
+      
+
+      
+  const modal = document.getElementById("mainModal");
+  const form = document.getElementById("formularioModal");
+
+  let modoEdicion = false; // false = nuevo, true = editar
+  let codEditar = null; // almacena el codalm del registro a editar
+
+  function openmodal() {
+    modoEdicion = false;
+    limpiarFormulario();
+    modal.showModal();
+  }
+
+  function openmodaledit(almacen) {
+    
+    document.getElementById("idesalm").value = almacen.desalm;
+    document.getElementById("iestado").value = almacen.estado;
+    document.getElementById("isiscod").value = almacen.siscod;
+
+    modoEdicion = true;
+    codEditar = almacen.codalm;
+    modal.showModal();
+  }
+
+  function closemodal() {
+    modal.close();
+  }
+  function limpiarFormulario() {
+    
+    document.getElementById("idesalm").value = "";
+    document.getElementById("iestado").value = "S";
+    document.getElementById("isiscod").value = "";
+  }
+
+ 
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    const desalm = document.getElementById("idesalm").value;
+    const estado = document.getElementById("iestado").value;
+    const siscod = document.getElementById("isiscod").value;
+
+    const metodo = modoEdicion ? "PUT" : "POST";
+    const datos = { codEditar, desalm, estado, siscod };
+
+    await fetch("SvGestion", {
+      method: metodo,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(datos),
+    });
+
+    modal.close();
+    listar();
+  });
+
+  async function eliminar(codalm) {
+    if (!confirm("¿Estás seguro de eliminar este almacén?")) return;
+
+    await fetch(`SvGestion?codalm=${codalm}`, {
+      method: "DELETE",
+    });
+
+    listar();
+  }
+
+  async function listar() {
+    let respuesta = await fetch("SvGestion");
+    let datos = await respuesta.json();
+
+    const tablaBody = document.querySelector("#miTabla tbody");
+    tablaBody.innerHTML = "";
+
+    datos.forEach((p) => {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+          <td id="codalm">${p.codalm}</td>
+          <td id="desalm">${p.desalm}</td>
+          <td id="estado">${p.estado}</td>
+          <td id="siscod">${p.siscod}</td>
+          <td>
+            <button onclick='openmodaledit(${JSON.stringify(p)})'>✏️ Editar</button>
+            <button onclick='eliminar(${p.codalm})'>🗑️ Eliminar</button>
+          </td>`;
+      tablaBody.appendChild(fila);
+    });
+
+    // Re-inicializar DataTable
+    if ($.fn.DataTable.isDataTable("#miTabla")) {
+      $("#miTabla").DataTable().destroy();
+    }
+    $("#miTabla").DataTable();
+  }
+
+  $(document).ready(function () {
+    listar();
+  });
+
+
+    </script>
+    
+  </body>
+</html>

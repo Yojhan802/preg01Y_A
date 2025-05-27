@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restablecer Contraseña</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+        Restablecer Contraseña
+      </h2>
+
+      <!-- Formulario para buscar código -->
+      <form id="buscarForm" class="mb-6">
+        <label for="codigo" class="block text-sm font-medium text-gray-700"
+          >Ingrese el código:</label
+        >
+        <div class="flex mt-1">
+          <input
+            type="text"
+            id="codigo"
+            name="codigo"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="px-4 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700"
+          >
+            Buscar
+          </button>
+        </div>
+      </form>
+
+      <!-- Resultado (persona encontrada) -->
+      <div id="resultado" class="hidden mb-6">
+        <p class="text-gray-700 mb-2">
+          Persona encontrada:
+          <span id="nombrePersona" class="font-semibold"></span>
+        </p>
+
+        <!-- Formulario para cambiar contraseña -->
+        <form id="cambiarPassForm">
+          <label
+            for="nuevaContrasena"
+            class="block text-sm font-medium text-gray-700"
+            >Nueva contraseña:</label
+          >
+          <input
+            type="password"
+            id="nuevaContrasena"
+            name="nuevaContrasena"
+            required
+            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <button
+            type="submit"
+            class="mt-4 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+          >
+            Guardar Contraseña
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Script para demostración (reemplaza con lógica real) -->
+    <script>
+      document
+    .getElementById("buscarForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault(); // Previene el envío del formulario
+
+      const codigo = document.getElementById("codigo").value.trim();
+
+      try {
+        // Aquí deberías enviar el código como parámetro o POST
+        const res = await fetch('LoginServlet?codigo=' + encodeURIComponent(codigo));
+        const datos = await res.json();
+        
+        // Suponiendo que recibes algo como: { codigo: "ABC123", nombre: "Juan Pérez" }
+        if ( datos.cod == codigo) {
+          document.getElementById("nombrePersona").textContent = datos.usenam;
+          document.getElementById("resultado").classList.remove("hidden");
+        } else {
+          alert("Código no encontrado");
+          document.getElementById("resultado").classList.add("hidden");
+        }
+      } catch (error) {
+        console.error("Error en la búsqueda:", error);
+        alert("Hubo un error al buscar el código.");
+      }
+    });
+
+      document
+    .getElementById("cambiarPassForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const nuevaPass = document.getElementById("nuevaContrasena").value;
+      
+      // Aquí deberías hacer un fetch POST a tu backend para actualizar la contraseña
+      // Por ejemplo:
+      
+      const res = await fetch('LoginServlet', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          codigo: document.getElementById("codigo").value.trim(),
+          nuevaContrasena: nuevaPass
+        })
+      });
+      
+
+      alert("Contraseña actualizada correctamente");
+    });
+    </script>
+  </body>
+</html>
